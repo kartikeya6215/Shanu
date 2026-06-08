@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b0f17">
+  <title>JARVIS Pro - Enhanced</title>
+  <style>
+    :root {
+      --jarvis-blue: #58a6ff;
+      --jarvis-green: #3fb950;
+      --jarvis-red: #ff7b72;
+      --bg-dark: #0b0f17;
+      --card-bg: rgba(15, 20, 30, 0.95);
+      --text-light: #c9d1d9;
+      --border-color: #30363d;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      line-height: 1.6;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 820px;
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 0 40px rgba(88, 166, 255, 0.25);
+      margin: auto;
+      border: 1px solid rgba(88, 166, 255, 0.1);
+    }
+    
+    h1 {
+      color: var(--jarvis-blue);
+      text-shadow: 0 0 20px rgba(88, 166, 255, 0.6);
+      margin-top: 0;
+      font-size: 2.1rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+    }
+    
+    #response-container {
+      margin: 25px 0;
+      background-color: #161b22;
+      padding: 20px;
+      border-radius: 14px;
+      min-height: 220px;
+      max-height: 420px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .message {
+      padding: 12px 16px;
+      border-radius: 10px;
+      max-width: 82%;
+      word-wrap: break-word;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    
+    .user-message {
+      background: rgba(88, 166, 255, 0.12);
+      border-left: 4px solid var(--jarvis-blue);
+      align-self: flex-end;
+    }
+    
+    .jarvis-message {
+      background: rgba(63, 185, 50, 0.12);
+      border-left: 4px solid var(--jarvis-green);
+      align-self: flex-start;
+    }
+    
+    .error-message {
+      background: rgba(255, 123, 114, 0.12);
+      border-left: 4px solid var(--jarvis-red);
+      font-style: italic;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    
+    button {
+      background-color: var(--jarvis-green);
+      color: white;
+      padding: 13px 26px;
+      font-size: 1.05rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(63, 185, 80, 0.3);
+    }
+    
+    button:hover {
+      background-color: #2ea043;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(63, 185, 80, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    #micButton.listening {
+      animation: pulse 1.6s infinite;
+      background-color: var(--jarvis-red);
+      box-shadow: 0 4px 12px rgba(255, 123, 114, 0.4);
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 123, 114, 0.7); }
+      70% { box-shadow: 0 0 0 14px rgba(255, 123, 114, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 123, 114, 0); }
+    }
+    
+    .status {
+      text-align: center;
+      margin: 16px 0 8px;
+      font-size: 0.92rem;
+      color: #8b949e;
+      font-weight: 500;
+    }
+    
+    .text-input {
+      display: flex;
+      gap: 10px;
+      margin: 18px 0 10px;
+    }
+    
+    .text-input input {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: #161b22;
+      color: var(--text-light);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .text-input input:focus {
+      border-color: var(--jarvis-blue);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    }
+    
+    .text-input button {
+      flex: 0 0 auto;
+      min-width: 90px;
+      padding: 13px 20px;
+    }
+    
+    .command-list {
+      background: rgba(22, 27, 34, 0.75);
+      padding: 18px 20px;
+      border-radius: 12px;
+      margin-top: 22px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .command-list h3 {
+      color: var(--jarvis-blue);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .command-list ul {
+      padding-left: 22px;
+      margin: 0;
+      columns: 2;
+      column-gap: 30px;
+    }
+    
+    .command-list li {
+      margin-bottom: 7px;
+      break-inside: avoid;
+      font-size: 0.95rem;
+    }
+    
+    .footer-note {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: #6e7681;
+    }
+    
+    @media (max-width: 640px) {
+      .container {
+        padding: 18px;
+      }
+      
+      .command-list ul {
+        columns: 1;
+      }
+      
+      button {
+        min-width: 100%;
+        padding: 14px 20px;
+      }
+      
+      .text-input {
+        flex-direction: column;
+      }
+      
+      .text-input button {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>JARVIS Pro</h1>
+    <p class="subtitle">Advanced Personal Assistant • Enhanced Edition</p>
+    
+    <div id="response-container">
+      <div class="message jarvis-message">JARVIS: Initializing advanced systems... All enhancements loading.</div>
+    </div>
+    
+    <div class="status" id="status">Status: Loading...</div>
+    
+    <div class="controls">
+      <button id="micButton" onclick="toggleListening()">
+        <span id="micIcon">🎤</span> <span id="micText">Start Listening</span>
+      </button>
+      <button onclick="resetConversation()">
+        🔄 Reset
+      </button>
+      <button onclick="requestPermissions()">
+        🔐 Grant Permissions
+      </button>
+    </div>
+    
+    <!-- Text Command Fallback for Power & Reliability -->
+    <div class="text-input">
+      <input type="text" id="textCommand" placeholder="Type command here (fallback when voice unavailable)..." aria-label="Type your command">
+      <button onclick="sendTextCommand()">Send</button>
+    </div>
+    
+    <div class="command-list">
+      <h3>🚀 Advanced Commands (Voice or Type)</h3>
+      <ul>
+        <li>"Open [App/YouTube/Gmail/WhatsApp/Maps]"</li>
+        <li>"Call [Contact Name]"</li>
+        <li>"Message [Contact] [Your message]"</li>
+        <li>"Add contact [name] [10-digit number]"</li>
+        <li>"List my contacts" / "Show contacts"</li>
+        <li>"Turn on/off [WiFi/Bluetooth/Flashlight]"</li>
+        <li>"What's my battery level?"</li>
+        <li>"Set alarm for [time]" (opens clock)</li>
+        <li>"Navigate to [location]"</li>
+        <li>"Take a photo" / "Open camera"</li>
+        <li>"Read my notifications"</li>
+        <li>"What's the time?" / "Samay kya hai?"</li>
+        <li>"What's the date?" / "Tarikh kya hai?"</li>
+        <li>"How's the weather?" / "Mausam kaisa hai?" (Real data!)</li>
+        <li>"Show me the news" / "Khabar"</li>
+        <li>"Search [query]" or "Google [query]"</li>
+        <li>"Who is [person]?" or "CM of [state]?"</li>
+        <li>"Calculate 45 * 12 + 7"</li>
+        <li>"Tell me a joke" / "Hasya"</li>
+        <li>"Remind me to [task] in 10 minutes"</li>
+        <li>"Play music" / "Lofi"</li>
+        <li>"Help" or "What can you do?"</li>
+        <li>"Stop listening" / "Band karo"</li>
+      </ul>
+    </div>
+    
+    <p class="footer-note">Works best on Chrome/Edge • Requires HTTPS or localhost for full voice features • Real weather powered by Open-Meteo</p>
+  </div>
+
+  <script>
+    // ==================== ENHANCED SYSTEM CONFIG ====================
+    const config = {
+      userName: "Sir",
+      assistantName: "JARVIS Pro",
+      defaultVoice: {
+        lang: 'en-IN',
+        rate: 1.0,
+        pitch: 0.92
+      },
+      appDeepLinks: {
+        youtube: "https://youtube.com",
+        phone: "tel:",
+        camera: "https://www.google.com/search?q=open+camera",
+        gallery: "https://photos.google.com",
+        calculator: "https://www.google.com/search?q=calculator",
+        facebook: "https://facebook.com",
+        instagram: "https://instagram.com",
+        whatsapp: "https://web.whatsapp.com",
+        twitter: "https://x.com",
+        chrome: "https://google.com",
+        music: "https://music.youtube.com",
+        maps: "https://maps.google.com",
+        gmail: "https://mail.google.com",
+        news: "https://news.google.com",
+        clock: "https://www.google.com/search?q=set+alarm"
+      },
+      contacts: {
+        "mom": { name: "Mom", number: "1234567890" },
+        "dad": { name: "Dad", number: "1234567891" }
+      },
+      deviceSettings: {
+        wifi: false,
+        bluetooth: false,
+        flashlight: false
+      },
+      weatherCoords: {
+        lat: 28.8955,
+        lon: 76.5979,
+        city: "Rohtak"
+      }
+    };
+
+    // Weather code descriptions (Open-Meteo)
+    const weatherCodes = {
+      0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+      45: "Fog", 48: "Depositing rime fog",
+      51: "Light drizzle", 53: "Moderate drizzle", 55: "Dense drizzle",
+      61: "Slight rain", 63: "Moderate rain", 65: "Heavy rain",
+      71: "Slight snow fall", 73: "Moderate snow fall", 75: "Heavy snow fall",
+      80: "Slight rain showers", 81: "Moderate rain showers", 82: "Violent rain showers",
+      85: "Slight snow showers", 86: "Heavy snow showers",
+      95: "Thunderstorm", 96: "Thunderstorm with slight hail", 99: "Thunderstorm with heavy hail"
+    };
+
+    function getWeatherDescription(code) {
+      return weatherCodes[code] || "Variable conditions";
+    }
+
+    // ==================== DOM & STATE ====================
+    const responseContainer = document.getElementById('response-container');
+    const statusElement = document.getElementById('status');
+    const micButton = document.getElementById('micButton');
+    const micIcon = document.getElementById('micIcon');
+    const micText = document.getElementById('micText');
+    const textInput = document.getElementById('textCommand');
+    
+    let recognition;
+    let isListening = false;
+    let isInitialized = false;
+    let speechSynthesis = window.speechSynthesis;
+    let maleVoice = null;
+    let appOpened = false;
+
+    // ==================== PERSISTENCE (localStorage) ====================
+    function loadPersistedData() {
+      try {
+        const savedContacts = localStorage.getItem('jarvis_contacts');
+        if (savedContacts) {
+          const parsed = JSON.parse(savedContacts);
+          if (Object.keys(parsed).length > 0) config.contacts = parsed;
+        }
+        
+        const savedSettings = localStorage.getItem('jarvis_device_settings');
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          config.deviceSettings = { ...config.deviceSettings, ...parsed };
+        }
+      } catch (e) {
+        console.warn('Could not load persisted data:', e);
+      }
+    }
+
+    function saveContacts() {
+      try {
+        localStorage.setItem('jarvis_contacts', JSON.stringify(config.contacts));
+      } catch (e) {}
+    }
+
+    function saveDeviceSettings() {
+      try {
+        localStorage.setItem('jarvis_device_settings', JSON.stringify(config.deviceSettings));
+      } catch (e) {}
+    }
+
+    // ==================== INITIALIZATION ====================
+    async function initializeJarvis() {
+      addMessage(config.assistantName, "Initializing all advanced systems and enhancements...");
+      
+      loadPersistedData();
+      await loadVoices();
+      
+      // Check Speech Recognition support
+      const SpeechRecAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecAPI) {
+        showError("Speech recognition is not supported in this browser. Please use Chrome or Edge, or type commands below.");
+        return false;
+      }
+      
+      // Request initial mic permission
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        showError("Microphone access denied. Voice commands won't work until you grant permission. You can still type commands.");
+      }
+      
+      isInitialized = true;
+      const greeting = `Systems fully online with all enhancements active. How may I assist you today, ${config.userName}?`;
+      addMessage(config.assistantName, greeting);
+      speak(greeting);
+      return true;
+    }
+
+    function loadVoices() {
+      return new Promise((resolve) => {
+        let voices = speechSynthesis.getVoices();
+        
+        function selectVoice() {
+          maleVoice = voices.find(v => 
+            (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || 
+             v.name.toLowerCase().includes('mark') || v.name.toLowerCase().includes('james')) && 
+            v.lang.includes('en')
+          ) || voices.find(v => v.lang.includes('en-IN') || v.lang.includes('en')) || voices[0];
+          resolve();
+        }
+        
+        if (voices.length > 0) {
+          selectVoice();
+        } else {
+          speechSynthesis.onvoiceschanged = () => {
+            voices = speechSynthesis.getVoices();
+            selectVoice();
+          };
+          // Fallback timeout
+          setTimeout(() => {
+            if (!maleVoice) selectVoice();
+          }, 1500);
+        }
+      });
+    }
+
+    // ==================== VOICE SYNTHESIS ====================
+    function speak(text) {
+      if (!speechSynthesis) return;
+      
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = config.defaultVoice.lang;
+      utterance.rate = config.defaultVoice.rate;
+      utterance.pitch = config.defaultVoice.pitch;
+      
+      if (maleVoice) {
+        utterance.voice = maleVoice;
+      }
+      
+      utterance.onend = () => {
+        if (isListening && !appOpened) {
+          setTimeout(() => {
+            if (isListening && !appOpened) startListening();
+          }, 650);
+        }
+      };
+      
+      speechSynthesis.speak(utterance);
+    }
+
+    // ==================== LISTENING CONTROLS ====================
+    async function toggleListening() {
+      if (!isInitialized) {
+        const initialized = await initializeJarvis();
+        if (!initialized) return;
+      }
+      
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening();
+      }
+    }
+
+    function startListening() {
+      try {
+        const SpeechRecAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecAPI) {
+          showError("Speech recognition not available. Please type your command instead.");
+          return;
+        }
+        
+        if (recognition) {
+          try { recognition.stop(); } catch(e) {}
+          recognition = null;
+        }
+        
+        recognition = new SpeechRecAPI();
+        recognition.lang = 'en-IN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.continuous = false;
+        
+        recognition.onstart = () => {
+          isListening = true;
+          appOpened = false;
+          micButton.classList.add('listening');
+          micIcon.textContent = '🛑';
+          micText.textContent = 'Listening...';
+          statusElement.textContent = 'Status: Listening — Speak now';
+          addMessage("System", "🎙️ Ready for your command...");
+        };
+        
+        recognition.onresult = (event) => {
+          const command = event.results[0][0].transcript.trim();
+          if (command.length > 1) {
+            addMessage("You", command);
+            processCommand(command);
+          }
+        };
+        
+        recognition.onerror = (event) => {
+          if (event.error === 'no-speech') {
+            // Silent fail, will auto-restart
+          } else if (event.error === 'audio-capture') {
+            showError("No microphone found. Please check your device.");
+          } else if (event.error === 'not-allowed') {
+            showError("Microphone permission denied. Grant permission or use text input.");
+          } else {
+            showError(`Voice error: ${event.error}. Try again or type command.`);
+          }
+          stopListening();
+        };
+        
+        recognition.onend = () => {
+          if (isListening && !appOpened) {
+            // Auto-restart for continuous feel
+            setTimeout(() => {
+              if (isListening && !appOpened && recognition) {
+                try { startListening(); } catch(e) {}
+              }
+            }, 900);
+          } else {
+            stopListening();
+          }
+        };
+        
+        recognition.start();
+      } catch (error) {
+        showError(`Failed to start voice recognition: ${error.message}. Use text input instead.`);
+        stopListening();
+      }
+    }
+
+    function stopListening() {
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+      }
+      isListening = false;
+      appOpened = false;
+      micButton.classList.remove('listening');
+      micIcon.textContent = '🎤';
+      micText.textContent = 'Start Listening';
+      statusElement.textContent = 'Status: Ready';
+    }
+
+    // ==================== TEXT INPUT FALLBACK (Major Power Feature) ====================
+    function sendTextCommand() {
+      const command = textInput.value.trim();
+      if (!command) return;
+      
+      addMessage("You", command);
+      processCommand(command);
+      textInput.value = '';
+      textInput.blur();
+    }
+
+    // Allow Enter key in text input
+    function setupTextInput() {
+      if (textInput) {
+        textInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            sendTextCommand();
+          }
+        });
+        
+        // Optional: focus hint
+        textInput.placeholder = "Type command here (or use voice) — e.g. weather, open youtube, remind me...";
+      }
+    }
+
+    // ==================== APP / WEBSITE OPENING ====================
+    function openAppOrWebsite(appKey) {
+      appOpened = true;
+      const url = config.appDeepLinks[appKey];
+      
+      if (!url) {
+        showError(`No direct link configured for "${appKey}". Searching the web instead.`);
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(appKey)}`, '_blank');
+        return;
+      }
+
+      if (url.startsWith('http')) {
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          // Popup blocked - fallback
+          window.location.href = url;
+        }
+      } else if (url.startsWith('tel:') || url.startsWith('sms:')) {
+        window.location.href = url;
+      } else {
+        try {
+          window.location.href = url;
+        } catch (e) {
+          showError(`Could not open ${appKey}`);
+        }
+      }
+      
+      setTimeout(() => { appOpened = false; }, 2500);
+    }
+
+    // ==================== DEVICE & UTILITY FUNCTIONS ====================
+    async function requestPermissions() {
+      const results = [];
+      
+      try {
+        // Microphone
+        const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mic.getTracks().forEach(t => t.stop());
+        results.push("Microphone ✓");
+      } catch (e) { results.push("Microphone ✗"); }
+      
+      try {
+        // Camera
+        const cam = await navigator.mediaDevices.getUserMedia({ video: true });
+        cam.getTracks().forEach(t => t.stop());
+        results.push("Camera ✓");
+      } catch (e) { results.push("Camera ✗"); }
+      
+      try {
+        // Location
+        await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 7000 });
+        });
+        results.push("Location ✓");
+      } catch (e) { results.push("Location ✗"); }
+      
+      try {
+        // Notifications
+        if ('Notification' in window) {
+          const perm = await Notification.requestPermission();
+          results.push(perm === 'granted' ? "Notifications ✓" : "Notifications (denied)");
+        }
+      } catch (e) { results.push("Notifications ✗"); }
+      
+      const summary = results.join(" • ");
+      addMessage("System", `Permission results: ${summary}`);
+      speak("Permissions processed. " + (results.filter(r => r.includes('✓')).length > 2 ? "Most features are now fully enabled, Sir." : "Some features may be limited."));
+    }
+
+    async function makeCall(number) {
+      try {
+        window.location.href = `tel:${number}`;
+      } catch (error) {
+        showError("Unable to initiate call. Please check your device.");
+      }
+    }
+
+    async function sendSMS(number, message) {
+      try {
+        window.location.href = `sms:${number}?body=${encodeURIComponent(message)}`;
+      } catch (error) {
+        showError("Unable to open messaging app.");
+      }
+    }
+
+    async function toggleWifi() {
+      config.deviceSettings.wifi = !config.deviceSettings.wifi;
+      const state = config.deviceSettings.wifi ? 'on' : 'off';
+      addMessage("System", `WiFi toggled ${state} (simulated — real control requires native companion app)`);
+      speak(`WiFi turned ${state}, Sir.`);
+      saveDeviceSettings();
+    }
+
+    async function toggleBluetooth() {
+      config.deviceSettings.bluetooth = !config.deviceSettings.bluetooth;
+      const state = config.deviceSettings.bluetooth ? 'on' : 'off';
+      addMessage("System", `Bluetooth toggled ${state} (simulated)`);
+      speak(`Bluetooth turned ${state}, Sir.`);
+      saveDeviceSettings();
+    }
+
+    async function toggleFlashlight() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { exact: 'environment' } }
+        });
+        const track = stream.getVideoTracks()[0];
+        
+        const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+        if (capabilities.torch) {
+          await track.applyConstraints({ advanced: [{ torch: !config.deviceSettings.flashlight }] });
+          config.deviceSettings.flashlight = !config.deviceSettings.flashlight;
+          const state = config.deviceSettings.flashlight ? 'on' : 'off';
+          addMessage("System", `Flashlight turned ${state}`);
+          speak(`Flashlight turned ${state}, Sir.`);
+          saveDeviceSettings();
+        } else {
+          showError("Torch/flashlight not supported on this device or browser.");
+        }
+        
+        // Clean up
+        setTimeout(() => {
+          try { track.stop(); } catch(e) {}
+        }, 800);
+      } catch (error) {
+        showError("Flashlight requires camera permission and Android Chrome/Edge for best results.");
+      }
+    }
+
+    async function getBatteryLevel() {
+      try {
+        if ('getBattery' in navigator) {
+          const battery = await navigator.getBattery();
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? " (charging)" : "";
+          const response = `Battery level is ${level}%${charging}, Sir.`;
+          addMessage("System", response);
+          speak(response);
+        } else {
+          showError("Battery status not available in this browser.");
+        }
+      } catch (error) {
+        showError("Could not read battery level.");
+      }
+    }
+
+    // ==================== REAL WEATHER (Powerful Enhancement) ====================
+    async function getWeather() {
+      addMessage(config.assistantName, `Checking live weather for ${config.weatherCoords.city}...`);
+      speak(`Checking current weather in ${config.weatherCoords.city}, Sir.`);
+      
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${config.weatherCoords.lat}&longitude=${config.weatherCoords.lon}&current=temperature_2m,weather_code&timezone=Asia/Kolkata`;
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error('Weather API error');
+        
+        const data = await response.json();
+        const temp = Math.round(data.current.temperature_2m);
+        const code = data.current.weather_code;
+        const desc = getWeatherDescription(code);
+        
+        const weatherText = `It's currently ${temp}°C in ${config.weatherCoords.city} with ${desc.toLowerCase()}.`;
+        addMessage(config.assistantName, weatherText);
+        speak(weatherText);
+      } catch (error) {
+        showError("Live weather unavailable. Opening Google Weather instead.");
+        window.open(`https://www.google.com/search?q=weather+${config.weatherCoords.city}`, '_blank');
+      }
+    }
+
+    // ==================== ADD CONTACT (Voice Powered) ====================
+    function addContact(name, number) {
+      const key = name.toLowerCase().trim();
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+      
+      config.contacts[key] = {
+        name: displayName,
+        number: number.replace(/\s+/g, '')
+      };
+      
+      saveContacts();
+      
+      const msg = `Contact ${displayName} added successfully with number ${number}.`;
+      addMessage(config.assistantName, msg);
+      speak(msg);
+    }
+
+    // ==================== CORE COMMAND PROCESSOR (Enhanced & More Reliable) ====================
+    function processCommand(command) {
+      const lowerCommand = command.toLowerCase().trim();
+      let handled = false;
+      
+      // --- OPEN APP ---
+      if (lowerCommand.startsWith('open ')) {
+        handled = true;
+        const requested = lowerCommand.replace('open ', '').trim();
+        
+        let appKey = Object.keys(config.appDeepLinks).find(key => 
+          key.includes(requested) || requested.includes(key)
+        );
+        
+        if (!appKey && config.appDeepLinks[requested]) appKey = requested;
+        
+        if (appKey && config.appDeepLinks[appKey]) {
+          const response = `Opening ${appKey}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+          openAppOrWebsite(appKey);
+        } else {
+          showError(`I don't have a direct shortcut for "${requested}". Opening web search instead.`);
+          window.open(`https://www.google.com/search?q=${encodeURIComponent(requested)}`, '_blank');
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- CALL ---
+      if (/(^|\s)(call|phone|dial)\s+(.+)/i.test(command)) {
+        handled = true;
+        const match = command.match(/(call|phone|dial)\s+(.+)/i);
+        const contactKey = match[2].trim().toLowerCase();
+        const contact = config.contacts[contactKey];
+        
+        if (contact) {
+          const response = `Calling ${contact.name}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+          makeCall(contact.number);
+        } else {
+          showError(`Contact "${contactKey}" not found. Say "add contact ${contactKey} [number]" to save it.`);
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- MESSAGE / SMS ---
+      if (/(^|\s)(message|text|sms)\s+(.+?)\s+(.{3,})$/i.test(command)) {
+        handled = true;
+        const match = command.match(/(message|text|sms)\s+(.+?)\s+(.{3,})$/i);
+        const contactKey = match[2].trim().toLowerCase();
+        const messageText = match[3].trim();
+        const contact = config.contacts[contactKey];
+        
+        if (contact) {
+          const response = `Sending message to ${contact.name}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+          sendSMS(contact.number, messageText);
+        } else {
+          showError(`Contact "${contactKey}" not found. Add it first with voice command.`);
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- DEVICE TOGGLES ---
+      if (/(turn (on|off)|enable|disable)\s+(wifi|bluetooth|flashlight|torch)/i.test(command)) {
+        handled = true;
+        const deviceMatch = command.match(/(wifi|bluetooth|flashlight|torch)/i);
+        const device = deviceMatch[0].toLowerCase();
+        const isOn = /on|enable/i.test(command);
+        
+        if (device === 'wifi' || device === 'bluetooth') {
+          if (device === 'wifi') toggleWifi();
+          else toggleBluetooth();
+        } else if (device === 'flashlight' || device === 'torch') {
+          toggleFlashlight();
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- BATTERY ---
+      if (/battery (level|status|percent)/i.test(command)) {
+        handled = true;
+        getBatteryLevel();
+        stopListening();
+        return;
+      }
+      
+      // --- WEATHER (Real API - Powerful Feature) ---
+      if (/(weather|mausam|temperature|temp)/i.test(command)) {
+        handled = true;
+        getWeather();
+        stopListening();
+        return;
+      }
+      
+      // --- TIME ---
+      if (/(time|samay|clock)/i.test(command)) {
+        handled = true;
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const response = `It's ${timeStr}, Sir.`;
+        addMessage(config.assistantName, response);
+        speak(response);
+        stopListening();
+        return;
+      }
+      
+      // --- DATE (New) ---
+      if (/(date|tarikh|aj ki date)/i.test(command)) {
+        handled = true;
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN', { 
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+        const response = `Today is ${dateStr}, Sir.`;
+        addMessage(config.assistantName, response);
+        speak(response);
+        stopListening();
+        return;
+      }
+      
+      // --- SEARCH (Powerful) ---
+      if (/^(search|google|find)\s+(.+)/i.test(command)) {
+        handled = true;
+        const query = command.replace(/^(search|google|find)\s+/i, '').trim();
+        const response = `Searching for "${query}" on Google, Sir.`;
+        addMessage(config.assistantName, response);
+        speak(response);
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        stopListening();
+        return;
+      }
+      
+      // --- ADD CONTACT (Powerful Voice Feature) ---
+      if (/^add contact\s+(.+?)\s+(\d{8,15})$/i.test(command)) {
+        handled = true;
+        const match = command.match(/^add contact\s+(.+?)\s+(\d{8,15})$/i);
+        const name = match[1].trim();
+        const number = match[2];
+        addContact(name, number);
+        stopListening();
+        return;
+      }
+      
+      // --- LIST CONTACTS ---
+      if (/(list|show|my)\s+contacts?/i.test(command)) {
+        handled = true;
+        const contactList = Object.values(config.contacts);
+        if (contactList.length === 0) {
+          const msg = "You have no saved contacts yet, Sir. Say 'add contact mom 9876543210' to add one.";
+          addMessage(config.assistantName, msg);
+          speak(msg);
+        } else {
+          const listText = contactList.map(c => `${c.name} (${c.number})`).join(", ");
+          const response = `Your saved contacts: ${listText}`;
+          addMessage(config.assistantName, response);
+          speak("Here are your contacts, Sir.");
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- REMIND ME (Powerful Feature with Notifications) ---
+      if (/remind me/i.test(command)) {
+        handled = true;
+        const match = command.match(/remind me\s+(?:to\s+)?(.+?)(?:\s+in\s+(\d+)\s*(minute|min|hour|hr)s?)?$/i);
+        
+        if (match && match[1]) {
+          const task = match[1].trim();
+          let delayMin = 5; // default
+          
+          if (match[2]) {
+            const num = parseInt(match[2]);
+            const unit = match[3] ? match[3].toLowerCase() : 'minute';
+            delayMin = (unit.startsWith('hour') || unit.startsWith('hr')) ? num * 60 : num;
+          }
+          
+          const delayMs = delayMin * 60 * 1000;
+          const response = `Reminder set: "${task}" in ${delayMin} minute${delayMin > 1 ? 's' : ''}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+          
+          setTimeout(() => {
+            const reminderMsg = `⏰ Reminder, Sir: ${task}`;
+            addMessage(config.assistantName, reminderMsg);
+            
+            if (Notification.permission === 'granted') {
+              new Notification("JARVIS Reminder", {
+                body: task,
+                icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='%233fb950'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E"
+              });
+            } else {
+              // Fallback for browsers without notification permission
+              setTimeout(() => alert(`JARVIS Reminder: ${task}`), 300);
+            }
+            
+            speak(`This is your reminder, Sir: ${task}`);
+          }, delayMs);
+        } else {
+          showError("Please say: remind me to [task] in [number] minutes (or hours)");
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- NEWS ---
+      if (/(news|khabar|headline)/i.test(command)) {
+        handled = true;
+        const response = "Showing latest news headlines, Sir.";
+        addMessage(config.assistantName, response);
+        speak(response);
+        openAppOrWebsite('news');
+        stopListening();
+        return;
+      }
+      
+      // --- MAPS / NAVIGATE ---
+      if (/(map|navigate|location|direction)/i.test(command)) {
+        handled = true;
+        const response = "Opening Google Maps, Sir.";
+        addMessage(config.assistantName, response);
+        speak(response);
+        openAppOrWebsite('maps');
+        stopListening();
+        return;
+      }
+      
+      // --- WHO IS / PERSON ---
+      if (/(who is|cm of|about)/i.test(command)) {
+        handled = true;
+        const query = command.replace(/(who is|cm of|about)\s*/i, '').trim() || "that person";
+        const response = `Searching for information about ${query}, Sir.`;
+        addMessage(config.assistantName, response);
+        speak(response);
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        stopListening();
+        return;
+      }
+      
+      // --- JOKE ---
+      if (/(joke|hasya|funny)/i.test(command)) {
+        handled = true;
+        const jokes = [
+          "Why don't scientists trust atoms? Because they make up everything!",
+          "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them!",
+          "Why don't skeletons fight each other? They don't have the guts!",
+          "I'm reading a book about anti-gravity. It's impossible to put down!",
+          "Why did the scarecrow win an award? Because he was outstanding in his field!"
+        ];
+        const joke = jokes[Math.floor(Math.random() * jokes.length)];
+        addMessage(config.assistantName, joke);
+        speak(joke);
+        stopListening();
+        return;
+      }
+      
+      // --- CALCULATE (Safer) ---
+      if (/(calculate|compute|what is|math)/i.test(command)) {
+        handled = true;
+        let mathProblem = command.replace(/(calculate|compute|what is|math)\s*/i, '').trim();
+        
+        // Clean common spoken words
+        mathProblem = mathProblem.replace(/plus/gi, '+').replace(/minus/gi, '-')
+                                 .replace(/times|multiply by/gi, '*').replace(/divided by/gi, '/')
+                                 .replace(/x\b/gi, '*');
+        
+        if (!mathProblem) {
+          showError("Please say a math problem after calculate, for example: calculate 25 times 4");
+          stopListening();
+          return;
+        }
+        
+        // Safety check
+        if (!/^[\d\s\+\-\*\/\(\)\.\%]+$/.test(mathProblem)) {
+          showError("I can only calculate basic math with numbers and operators.");
+          stopListening();
+          return;
+        }
+        
+        try {
+          // Safer evaluation
+          const result = new Function('"use strict"; return (' + mathProblem + ')')();
+          const response = `The result is ${result}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+        } catch (e) {
+          showError("I couldn't solve that math problem. Please try a simpler expression.");
+        }
+        stopListening();
+        return;
+      }
+      
+      // --- HELP ---
+      if (/(help|what can you|capabilities|commands)/i.test(command)) {
+        handled = true;
+        const response = "I can control apps, contacts, device settings, give real weather, set timed reminders with notifications, search the web, calculate safely, tell jokes, and much more. Check the full list on screen or try any command by voice or typing.";
+        addMessage(config.assistantName, response);
+        speak(response);
+        stopListening();
+        return;
+      }
+      
+      // --- STOP / GOODBYE ---
+      if (/(stop|band|shut up|goodbye|bye)/i.test(command)) {
+        handled = true;
+        const response = "Standing by, Sir. Say 'start listening' or type a command anytime.";
+        addMessage(config.assistantName, response);
+        speak(response);
+        stopListening();
+        return;
+      }
+      
+      // --- SPECIFIC APP SHORTCUTS (YouTube, WhatsApp, etc.) ---
+      const appShortcuts = ['youtube', 'whatsapp', 'instagram', 'facebook', 'gmail', 'music', 'lofi', 'maps', 'news'];
+      for (const app of appShortcuts) {
+        if (lowerCommand.includes(app)) {
+          handled = true;
+          const response = `Opening ${app.charAt(0).toUpperCase() + app.slice(1)}, Sir.`;
+          addMessage(config.assistantName, response);
+          speak(response);
+          openAppOrWebsite(app);
+          stopListening();
+          return;
+        }
+      }
+      
+      // --- DEFAULT / UNKNOWN ---
+      if (!handled) {
+        const response = "I didn't understand that command, Sir. Try 'open YouTube', 'weather', 'search for latest tech news', 'remind me to call mom in 15 minutes', or check the command list below. You can also type any command.";
+        addMessage(config.assistantName, response);
+        speak(response);
+        stopListening();
+      }
+    }
+
+    // ==================== UI HELPERS ====================
+    function addMessage(sender, text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      
+      if (sender === config.assistantName) {
+        messageDiv.classList.add('jarvis-message');
+        messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      } else if (sender === "System") {
+        messageDiv.classList.add('error-message');
+        messageDiv.innerHTML = `<em>${text}</em>`;
+      } else {
+        messageDiv.classList.add('user-message');
+        messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      }
+      
+      responseContainer.appendChild(messageDiv);
+      scrollToBottom();
+    }
+
+    function showError(message) {
+      addMessage("System", message);
+    }
+
+    function scrollToBottom() {
+      responseContainer.scrollTop = responseContainer.scrollHeight;
+    }
+
+    function resetConversation() {
+      responseContainer.innerHTML = '';
+      const msg = "Conversation reset. All systems ready. How may I assist you, Sir?";
+      addMessage(config.assistantName, msg);
+      speak(msg);
+      // Keep persisted data (contacts etc.)
+    }
+
+    // ==================== BOOTSTRAP ====================
+    window.addEventListener('load', () => {
+      // Security warning
+      if (window.location.protocol !== 'https:' && !window.location.hostname.includes('localhost')) {
+        showError("For full voice features (Speech Recognition), please use HTTPS or run on localhost.");
+      }
+      
+      setupTextInput();
+      initializeJarvis();
+      
+      // Optional: Auto-focus text input hint on desktop
+      setTimeout(() => {
+        if (window.innerWidth > 700 && textInput) {
+          // Don't auto focus to avoid mobile keyboard popup
+        }
+      }, 1800);
+      
+      // Easter egg / personality
+      console.log('%c[JARVIS Enhanced] All systems nominal. Built for power & reliability.', 'color:#3fb950');
+    });
+    
+    // Expose some functions for debugging/advanced use (optional)
+    window.JARVIS = { reset: resetConversation, speak, getWeather };
+  </script>
+</body>
+</html>
