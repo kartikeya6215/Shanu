@@ -578,12 +578,6 @@
       textInput.blur();
     }
 
-    textInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        sendTextCommand();
-      }
-    });
-
     // ==================== MOBILE APP OPENER ====================
     function openMobileApp(appKey) {
       appOpened = true;
@@ -919,7 +913,7 @@
       }
       
       // --- JOKE ---
-      if /(joke|funny|hasya)/i.test(command)) {
+      if (/(joke|funny|hasya)/i.test(command)) {
         const jokes = [
           "Why did the mobile phone go to school? Because it wanted to improve its cell signal!",
           "What do you call a phone that's having a bad day? A droid in distress!",
@@ -937,17 +931,20 @@
       stopListening();
     }
 
-    // ==================== AUTO-INIT ====================
-    window.addEventListener('load', () => {
+    // ==================== AUTO-INIT (FIXED - NOW RUNS AFTER DOM LOADS) ====================
+    document.addEventListener('DOMContentLoaded', function() {
       statusElement.textContent = 'Status: Ready • Tap microphone or type command';
-      setupTextInput();
-    });
-
-    function setupTextInput() {
+      
+      // Setup text input listener
       if (textInput) {
+        textInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            sendTextCommand();
+          }
+        });
         textInput.focus();
       }
-    }
+    });
   </script>
 </body>
 </html>
